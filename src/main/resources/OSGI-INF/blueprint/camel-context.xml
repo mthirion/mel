@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:camel="http://camel.apache.org/schema/blueprint" xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf"
+	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+	xmlns:cxf="http://cxf.apache.org/blueprint/core" xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd              http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd              ">
+	<cm:property-placeholder persistent-id="org.jboss.integration.examples.service">
+		<cm:default-properties>
+			<!-- Service URL -->
+			<cm:property name="api.root.url" value="/api" />
+		</cm:default-properties>
+	</cm:property-placeholder>
+	<camelcxf:rsServer address="${api.root.url}" id="rsServer"
+		serviceClass="org.jboss.integration.examples.Service">
+		<!-- <jaxrs:providers> -->
+		<!-- <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/> -->
+		<!-- </jaxrs:providers> -->
+	</camelcxf:rsServer>
+	<bean class="org.jboss.integration.examples.Service" id="myService" />
+	<camelContext id="melApiContext" streamCache="true" trace="false"
+		xmlns="http://camel.apache.org/schema/blueprint">
+		<route id="melApiRoute">
+			<from id="_from1" uri="cxfrs://bean://rsServer?bindingStyle=SimpleConsumer" />
+			<setBody id="_setBody1">
+				<!-- <method ref="helloBean" method="hello"></method> -->
+				<camel:constant>HELLO</camel:constant>
+			</setBody>
+			<log id="_log1" message="The message contains ${body}" />
+			<setHeader headerName="content-type">
+				<simple>text/plain</simple>
+			</setHeader>
+			<convertBodyTo type="java.lang.String"/>
+			<!-- <to uri="mock:result" /> -->
+		</route>
+		<!-- <routeBuilder ref="reportIncidentRoutes" /> -->
+	</camelContext>
+</blueprint>
