@@ -18,19 +18,42 @@
 		<!-- </jaxrs:providers> -->
 	</camelcxf:rsServer>
 	<bean class="org.jboss.integration.examples.Service" id="myService" />
+
+	<bean id="metricsRoutePolicyFactory"
+		class="org.apache.camel.component.metrics.routepolicy.MetricsRoutePolicyFactory" />
+	<bean id="metricsMessageHistoryFactory"
+		class="org.apache.camel.component.metrics.messagehistory.MetricsMessageHistoryFactory" />
+
 	<camelContext id="melApiContext" streamCache="true" trace="false"
 		xmlns="http://camel.apache.org/schema/blueprint">
+
+
 		<route id="melApiRoute">
+
 			<from id="_from1" uri="cxfrs://bean://rsServer?bindingStyle=SimpleConsumer" />
+			
+			<onCompletion onFailureOnly="true">
+				<camel:when>
+					<simple>${bodyAs(String)} contains 'HELLO'</simple>
+				</camel:when>
+				<log id="_complete" message="${id} :: flow completed" />
+			</onCompletion>
+			<onException>
+				<exception>java.lang.Throwable</exception>
+				<handled><constant>true</constant></handled>
+				<log id="_error" message="${id} :: flow in error" />
+			</onException>			
+			
+			
 			<setBody id="_setBody1">
 				<!-- <method ref="helloBean" method="hello"></method> -->
 				<camel:constant>HELLO</camel:constant>
 			</setBody>
-			<log id="_log1" message="The message contains ${body}" />
+			<log id="_log1" message="${id} :: The message contains ${body}" />
 			<setHeader headerName="content-type">
 				<simple>text/plain</simple>
 			</setHeader>
-			<convertBodyTo type="java.lang.String"/>
+			<convertBodyTo type="java.lang.String" />
 			<!-- <to uri="mock:result" /> -->
 		</route>
 		<!-- <routeBuilder ref="reportIncidentRoutes" /> -->
