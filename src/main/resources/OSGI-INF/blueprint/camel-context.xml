@@ -32,7 +32,7 @@
 
 			<from id="_from1" uri="cxfrs://bean://rsServer?bindingStyle=SimpleConsumer" />
 			
-			<onCompletion onFailureOnly="true">
+			<onCompletion onCompleteOnly="true">
 				<camel:when>
 					<simple>${bodyAs(String)} contains 'HELLO'</simple>
 				</camel:when>
