@@ -18,11 +18,6 @@
 		<jboss.fuse.bom.version>6.3.0.redhat-329</jboss.fuse.bom.version>
 		<fabric8.features>camel-blueprint camel-cxf</fabric8.features>
 		
-		<felix-connect-version>0.1.0</felix-connect-version>
-		<felix-fileinstall-pojosr-version>3.2.8</felix-fileinstall-pojosr-version>
-		<felix-framework-version>3.2.2</felix-framework-version>
-		<felix-fileinstall-pojosr-version>3.4.2</felix-fileinstall-pojosr-version>
-		<felix-framework-version>3.4.2</felix-framework-version>
 	</properties>
 
 	<dependencyManagement>
@@ -189,6 +184,29 @@
 				</executions>
 			</plugin>
 
+ 
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>attach-artifacts</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<artifact>
+									<file>${project.basedir}/target/profile.zip</file>
+									<type>zip</type>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
 <!--
 			<plugin>
@@ -223,29 +241,7 @@
 			</plugin>
 -->
 
- 
-<!-- 			<plugin> -->
-<!-- 				<groupId>org.codehaus.mojo</groupId> -->
-<!-- 				<artifactId>build-helper-maven-plugin</artifactId> -->
-<!-- 				<version>1.7</version> -->
-<!-- 				<executions> -->
-<!-- 					<execution> -->
-<!-- 						<id>attach-artifacts</id> -->
-<!-- 						<phase>package</phase> -->
-<!-- 						<goals> -->
-<!-- 							<goal>attach-artifact</goal> -->
-<!-- 						</goals> -->
-<!-- 						<configuration> -->
-<!-- 							<artifacts> -->
-<!-- 								<artifact> -->
-<!-- 									<file>${project.basedir}/target/profile.zip</file> -->
-<!-- 									<type>zip</type> -->
-<!-- 								</artifact> -->
-<!-- 							</artifacts> -->
-<!-- 						</configuration> -->
-<!-- 					</execution> -->
-<!-- 				</executions> -->
-<!-- 			</plugin> -->
+
 
 		</plugins>
 	</build>
