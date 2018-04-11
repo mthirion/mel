@@ -5,10 +5,12 @@
 	xmlns:cxf="http://cxf.apache.org/blueprint/core" xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd              http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd              ">
-	<cm:property-placeholder persistent-id="org.jboss.integration.examples.service">
+	<cm:property-placeholder id="mel-example"
+		persistent-id="org.jboss.integration.examples.service">
 		<cm:default-properties>
 			<!-- Service URL -->
-			<cm:property name="api.root.url" value="/api" />
+			<cm:property name="api.root.url" value="http://192.168.55.180:9898/api" />
+			<cm:property name="app.key" value="oihsdfpoisdfps" />
 		</cm:default-properties>
 	</cm:property-placeholder>
 	<camelcxf:rsServer address="${api.root.url}" id="rsServer"
@@ -18,44 +20,78 @@
 		<!-- </jaxrs:providers> -->
 	</camelcxf:rsServer>
 	<bean class="org.jboss.integration.examples.Service" id="myService" />
+	<bean class="org.jboss.integration.examples.FileInputRouteBuilder"
+		id="fileInputRoute" />
+	<bean
+		class="org.apache.camel.component.metrics.routepolicy.MetricsRoutePolicyFactory"
+		id="metricsRoutePolicyFactory" />
+	<bean
+		class="org.apache.camel.component.metrics.messagehistory.MetricsMessageHistoryFactory"
+		id="metricsMessageHistoryFactory" />
+	<bean class="org.jboss.integration.examples.MonitorPolicy" id="monitorpolicy" />
+	<bean class="org.jboss.integration.examples.EventManager" id="eventmanager" />
+	<bean class="org.jboss.integration.examples.NagiosProcessor" id="nagios" />
+	<bean class="org.jboss.integration.examples.ElkProcessor" id="elk" />
 
-	<bean id="metricsRoutePolicyFactory"
-		class="org.apache.camel.component.metrics.routepolicy.MetricsRoutePolicyFactory" />
-	<bean id="metricsMessageHistoryFactory"
-		class="org.apache.camel.component.metrics.messagehistory.MetricsMessageHistoryFactory" />
 
 	<camelContext id="melApiContext" streamCache="true" trace="false"
 		xmlns="http://camel.apache.org/schema/blueprint">
+		<dataFormats>
+			<xmljson forceTopLevelObject="true" id="xmljson" rootName="client" />
+			<!-- trimSpaces="true" rootName="clients" skipNamespaces="true" -->
+			<!-- removeNamespacePrefixes="true" /> -->
+			<json id="jackson" library="Jackson" />
+		</dataFormats>
+		<route id="melApiRoute" routePolicyRef="monitorpolicy">
+			<!-- <transform></transform> -->
+			<from id="cxf_endpoint" uri="cxfrs:bean:rsServer?bindingStyle=SimpleConsumer" />
+			<onCompletion id="_onCompletion1" onCompleteOnly="true">
+				<!-- <camel:when id="_when1"> -->
+				<!-- <simple>${bodyAs(String)} contains 'HELLO'</simple> -->
+				<!-- </camel:when> -->
 
+				<log id="_complete" message="ON_COMPLETION :: exchange [${id}] completed" />
 
-		<route id="melApiRoute">
+				<!-- <process id="nagios_process" ref="nagios"/> -->
+				<!-- <log id="nagios_mon" message="NAGIOS TRAME :: ${body}"/> -->
+				<!-- <to id="nagios-server" uri="nagios::5667?password=llll"/> -->
 
-			<from id="_from1" uri="cxfrs://bean://rsServer?bindingStyle=SimpleConsumer" />
-			
-			<onCompletion onCompleteOnly="true">
-				<camel:when>
-					<simple>${bodyAs(String)} contains 'HELLO'</simple>
-				</camel:when>
-				<log id="_complete" message="${id} :: flow completed" />
+				<!-- <process id="elk_process" ref="elk"/> -->
+				<!-- <log id="mon1" message="PREPARE MAP :: ${body}"/> -->
+				<!-- <marshal id="jackson"> -->
+				<!-- <json library="Jackson"/> -->
+				<!-- </marshal> -->
+				<!-- <log id="mon1" message="SEND TO ELASTICSEARCH :: ${body}"/> -->
+				<!-- <to uri="elasticsearch://bdthon?operation=INDEX&amp;ip=192.168.58.187&amp;port=9200&amp;indexName=blablacar"/> -->
 			</onCompletion>
-			<onException>
+
+
+			<!-- <to uri="file:///redhat/tmp/mel/appdata?fileName=${id}"/> -->
+			<onException id="_onException1">
 				<exception>java.lang.Throwable</exception>
-				<handled><constant>true</constant></handled>
+<!-- 				<handled> -->
+<!-- 				<constant>true</constant> -->
+<!-- 				</handled> -->
 				<log id="_error" message="${id} :: flow in error" />
-			</onException>			
-			
-			
-			<setBody id="_setBody1">
-				<!-- <method ref="helloBean" method="hello"></method> -->
-				<camel:constant>HELLO</camel:constant>
-			</setBody>
-			<log id="_log1" message="${id} :: The message contains ${body}" />
-			<setHeader headerName="content-type">
+			</onException>
+			<log id="_log1" message="${id} :: The input message is ${body}" />
+			<when>
+				<simple>${exchangeProperty.HTTP_METHOD} == 'POST'</simple>
+				<camel:unmarshal id="_unmarshal1">
+					<camel:xmljson />
+				</camel:unmarshal>
+				<log id="_log1" message="${id} :: The output message is ${body}" />
+			</when>
+			<setHeader headerName="content-type" id="_setHeader1">
 				<simple>text/plain</simple>
 			</setHeader>
-			<convertBodyTo type="java.lang.String" />
-			<!-- <to uri="mock:result" /> -->
+<!-- 			<throwException exceptionType="java.lang.IllegalArgumentException" message="MEL Custom Exception"/> -->
+			<convertBodyTo id="_convertBodyTo1" type="java.lang.String" />
+			<to id="_to1" uri="mock:restResponse" />
 		</route>
-		<!-- <routeBuilder ref="reportIncidentRoutes" /> -->
 	</camelContext>
+	<!-- <camelContext id="melApiContext2" streamCache="true" trace="false" 
+		xmlns="http://camel.apache.org/schema/blueprint"> -->
+	<!-- <routeBuilder ref="fileInputRoute"/> -->
+	<!-- </camelContext> -->
 </blueprint>
