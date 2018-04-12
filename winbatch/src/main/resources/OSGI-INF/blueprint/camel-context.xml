@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:camel="http://camel.apache.org/schema/blueprint"
+    xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+    xmlns:cxf="http://cxf.apache.org/blueprint/core"
+    xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd              http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd              ">
+    <cm:property-placeholder id="mel-batchexample" persistent-id="org.jboss.integration.examples.batch">
+        <cm:default-properties>
+            <cm:property name="cron.expression" value="0/30+*+*+*+*+?"/>
+            <!-- every 30 sec  -->
+        </cm:default-properties>
+    </cm:property-placeholder>
+    <!-- 	<bean class="org.jboss.integration.examples.EventManager" id="eventmanager" /> -->
+    <camelContext id="melBatchContext" streamCache="true" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
+        <route id="melBatchRoute">
+            <!-- 			<from uri="timer://foo?delay=1000&amp;period=30000" /> -->
+            <from id="_from1" uri="quartz://mel/testbatchcron?cron=0/5+*+*+*+*+?"/>
+            <to id="_to1" uri="exec:/redhat/tmp/mel/test.sh?args=arg1 arg2"/>
+            <log message="Script output :: ${body}"/>
+            <to id="_to2" uri="mock:response"/>
+        </route>
+    </camelContext>
+</blueprint>
