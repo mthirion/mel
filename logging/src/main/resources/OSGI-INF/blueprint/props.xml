@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:camel="http://camel.apache.org/schema/blueprint"
+    xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+    xmlns:cxf="http://cxf.apache.org/blueprint/core"
+    xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd              http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd              ">
+    <cm:property-placeholder id="mel-config" persistent-id="fr.mel.integration.configfile" ><!-- update-strategy="reload"> -->
+        <cm:default-properties>
+            <cm:property name="application.data" value="valeurDefault"/>
+        </cm:default-properties>
+    </cm:property-placeholder>
+    <camelContext id="logging" streamCache="true" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
+        <route id="props-route">
+            <from id="timer_i1" uri="timer://myTimer?repeatCount=1&amp;delay=5000"/>
+            <onException id="_onException1">
+                <exception>java.lang.Throwable</exception>
+                <!-- <handled> -->
+                <!-- <constant>true</constant> -->
+                <!-- </handled> -->
+                <log id="_error" message="[MEL APPLICATION] :: exchange ${id} failed"/>
+            </onException>
+            <log id="prop-line1" message="-----------------------------------"/>
+            <log id="props-meta" message="[MEL APPLICATION] :: External Properties "/>
+            <log id="prop1" message="application value = {{application.data}}"/>
+<!--             <log id="prop2" message="exclusive parent value = {{environnement}}"/> -->
+            <log id="prop-line2" message="-----------------------------------"/>
+        </route>
+    </camelContext>
+</blueprint>

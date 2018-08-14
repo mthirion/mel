@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:camel="http://camel.apache.org/schema/blueprint"
+    xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+    xmlns:cxf="http://cxf.apache.org/blueprint/core"
+    xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd              http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd              ">
+    <cm:property-placeholder id="mel-example" persistent-id="org.jboss.integration.examples.service">
+        <cm:default-properties>
+            <!-- Service URL -->
+            <cm:property name="target.url" value="localhost:9898/api/service/flow"/>
+            <cm:property name="app.key" value="oihsdfpoisdfps"/>
+        </cm:default-properties>
+    </cm:property-placeholder>
+    <camelContext id="remoteServiceContext" streamCache="true"
+        trace="false" xmlns="http://camel.apache.org/schema/blueprint">
+        <route id="remote-webservice-Route">
+            <from id="once" uri="timer://runOnce?repeatCount=1&amp;delay=5000"/>
+            <onException id="_onException1">
+                <exception>java.lang.Throwable</exception>
+                <!-- <handled> -->
+                <!-- <constant>true</constant> -->
+                <!-- </handled> -->
+                <log id="_error" message="[MEL APPLICATION] :: exchange ${id} failed"/>
+            </onException>
+            <setBody id="_setBody1">
+                <simple>{"id":"11", "classifier":"aClass"}</simple>
+            </setBody>
+            <log id="_log2" message="[MEL APPLICATION] :: The request message is ${body}"/>
+            <setHeader headerName="Content-Type" id="_setHeader1">
+                <constant>application/json</constant>
+            </setHeader>
+            <to id="_to1" uri="http4:{{target.url}}"/>
+            <log id="_log2" message="[MEL APPLICATION] :: The response message is ${body}"/>
+        </route>
+    </camelContext>
+</blueprint>

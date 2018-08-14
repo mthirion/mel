@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:camel="http://camel.apache.org/schema/blueprint"
+    xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+    xmlns:cxf="http://cxf.apache.org/blueprint/core"
+    xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd              http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd              ">
+    <!--     <bean class="com.mysql.jdbc.jdbc2.optional.MysqlDataSource" id="mysqlDataSource"> -->
+    <!--         		<property name="driverClassName" value="com.mysql.jdbc.Driver" /> -->
+    <!--         <property name="url" value="jdbc:mysql://localhost:3306/mel"/> -->
+    <!--         <property name="user" value="root"/> -->
+    <!--         <property name="password" value="mysql"/> -->
+    <!--     </bean> -->
+    <bean class="org.apache.commons.dbcp.BasicDataSource" id="mysqlDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/mel"/>
+        <property name="user" value="root"/>
+        <property name="password" value="mysql"/>
+    </bean>
+    <!-- configure the Camel SQL component to use the JDBC data source -->
+    <!--     <bean class="org.apache.camel.component.sql.SqlComponent" id="sql"> -->
+    <!--         <property name="dataSource" ref="mysqlDataSource"/> -->
+    <!--     </bean> -->
+    <bean class="fr.mel.integration.DBReader" id="dbreader"/>
+    <camelContext id="databases" streamCache="true" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
+        <route id="databases-route">
+            <!-- <throwException exceptionType="java.lang.IllegalArgumentException" 
+				message="MEL Custom Exception"/> -->
+            <!-- 			<from id="db-input" uri="sql:select * from corporations where id=:#myId?dataSource=#mysqlDataSource" /> -->
+            <!--			<to uri="controlbus:route?routeId=databases&amp;action=stop&amp;async=true"/> -->
+            <!-- values from body if MAP or from header -->
+            <!--             <to id="_to1" uri="sql:select * from corporations"/> -->
+            <onException id="_onException1">
+                <exception>java.lang.Throwable</exception>
+                <!-- <handled> -->
+                <!-- <constant>true</constant> -->
+                <!-- </handled> -->
+                <log id="_error" message="[MEL APPLICATION] :: exchange ${id} failed"/>
+            </onException>
+            <to id="batch" uri="quartz://mel/databasecron?cron=0/30+*+*+*+*+?"/>
+            <to id="_to1" uri="sql:select * from corporations?dataSource=#mysqlDataSource"/>
+            <to id="dbreader" uri="bean:dbreader"/>
+            <log id="_log1" message="------------------------------------"/>
+        </route>
+    </camelContext>
+</blueprint>

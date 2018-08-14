@@ -1,0 +1,6 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Fri Apr 13 16:25:03 CEST 2018
+http\://fuse-build.lillemetropole.fr\:8081/repository/maven-public/.error=Could not transfer artifact org.jboss.fuse.bom\:jboss-fuse-parent\:pom\:6.3.0.redhat-329 from/to nexus-maven (http\://fuse-build.lillemetropole.fr\:8081/repository/maven-public/)\: fuse-build.lillemetropole.fr
+http\://localhost\:8081/nexus/content/groups/public/.lastUpdated=1523629503374
+@default-nexus-maven-http\://fuse-build.lillemetropole.fr\:8081/repository/maven-public/.lastUpdated=1523629503382
+http\://localhost\:8081/nexus/content/groups/public/.error=

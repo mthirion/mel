@@ -1,0 +1,6 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Fri Apr 13 16:25:03 CEST 2018
+http\://fuse-build.lillemetropole.fr\:8081/repository/maven-public/.error=Could not transfer artifact org.apache.felix\:maven-bundle-plugin\:pom\:2.4.0 from/to nexus-maven (http\://fuse-build.lillemetropole.fr\:8081/repository/maven-public/)\: fuse-build.lillemetropole.fr\: Name or service not known
+http\://localhost\:8081/nexus/content/groups/public/.lastUpdated=1523629503142
+@default-nexus-maven-http\://fuse-build.lillemetropole.fr\:8081/repository/maven-public/.lastUpdated=1523629503358
+http\://localhost\:8081/nexus/content/groups/public/.error=

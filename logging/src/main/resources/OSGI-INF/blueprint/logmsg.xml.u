@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:camel="http://camel.apache.org/schema/blueprint"
+    xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+    xmlns:cxf="http://cxf.apache.org/blueprint/core"
+    xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd              http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd              ">
+    <camelContext id="logmsg" streamCache="true" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
+        <route id="logmsg-route">
+            <!-- <throwException exceptionType="java.lang.IllegalArgumentException" 
+				message="MEL Custom Exception"/> -->
+            <from id="timer-msg" uri="timer://myMsgTimer?repeatCount=1&amp;delay=7000"/>
+            <onException id="exception2">
+                <exception>java.lang.Throwable</exception>
+                <!-- <handled> -->
+                <!-- <constant>true</constant> -->
+                <!-- </handled> -->
+                <log id="_error2" message="[MEL APPLICATION] :: exchange ${id} failed"/>
+            </onException>
+            <setHeader headerName="mel.myHeader" id="_setHeader2">
+                <simple>mydata</simple>
+                <!-- <simple>${id}</simple> -->
+            </setHeader>
+            <setBody id="_setBody2">
+                <constant>this is the content of the body</constant>
+            </setBody>
+            <log id="data-line1" message="------------ MAIN ROUTE --------- ---"/>
+            <log id="data-context-meta1" message="[MEL APPLICATION] :: Context name "/>
+            <log id="data-context1" message="${camelId}"/>
+            <log id="data-route-meta1" message="[MEL APPLICATION] :: Route name "/>
+            <log id="data-route1" message="${routeId}"/>
+            <log id="data-exchangeId-meta1" message="[MEL APPLICATION] :: ExchangeId "/>
+            <log id="data-exchangeId1" message="${exchangeId}"/>
+            <log id="data-messageId-meta1" message="[MEL APPLICATION] :: MessageId "/>
+            <log id="data-messageId1" message="${id}"/>
+            <log id="data-headers-meta" message="[MEL APPLICATION] :: Message header "/>
+            <log id="data-headers" message="${headers}"/>
+            <log id="next-body-meta1" message="[MEL APPLICATION] :: Message body "/>
+            <log id="next-body1" message="${body}"/>
+            <to id="_to1" uri="amq:melBufferQueue"/>
+        </route>
+        <route id="next-route">
+            <from id="_from1" uri="amq://melBufferQueue"/>
+            <log id="data-line2" message="------------ EMBEDDED ROUTE --------- ---"/>
+            <log id="data-context-meta2" message="[MEL APPLICATION] :: Context name "/>
+            <log id="data-context2" message="${camelId}"/>
+            <log id="data-route-meta2" message="[MEL APPLICATION] :: Route name "/>
+            <log id="data-route2" message="${routeId}"/>
+            <log id="data-exchangeId-meta2" message="[MEL APPLICATION] :: ExchangeId "/>
+            <log id="data-exchangeId2" message="${exchangeId}"/>
+            <log id="data-messageId-meta2" message="[MEL APPLICATION] :: MessageId "/>
+            <log id="data-messageId2" message="${id}"/>
+            <log id="data-headers-meta2" message="[MEL APPLICATION] :: Message header "/>
+            <log id="data-headers2" message="${headers}"/>
+            <log id="next-body-meta2" message="[MEL APPLICATION] :: Message body "/>
+            <log id="next-body2" message="${body}"/>
+        </route>
+    </camelContext>
+</blueprint>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:camel="http://camel.apache.org/schema/blueprint"
+    xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+    xmlns:cxf="http://cxf.apache.org/blueprint/core"
+    xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd              http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd              ">
+    <cm:property-placeholder id="mel-example" persistent-id="org.jboss.integration.examples.service">
+        <cm:default-properties>
+            <!-- Service URL -->
+            <cm:property name="api.root.url" value="/api2"/>
+            <cm:property name="app.key" value="oihsdfpoisdfps"/>
+        </cm:default-properties>
+    </cm:property-placeholder>
+    <camelcxf:rsServer address="${api.root.url}" id="rsServer" serviceClass="fr.mel.integration.Service">
+        <!-- <jaxrs:providers> -->
+        <!-- <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/> -->
+        <!-- </jaxrs:providers> -->
+    </camelcxf:rsServer>
+    <bean class="fr.mel.integration.Service" id="myService"/>
+    <bean class="fr.mel.integration.JSONBean" id="jsonreader"/>
+    <bean class="fr.mel.integration.XMLBean" id="xmlreader"/>
+    <camelContext id="melApiContext" streamCache="true" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
+        <!-- <dataFormats> -->
+        <!-- <xmljson forceTopLevelObject="true" id="xmljson" rootName="client"/> -->
+        <!-- trimSpaces="true" rootName="clients" skipNamespaces="true" -->
+        <!-- removeNamespacePrefixes="true" /> -->
+        <!-- <json id="jackson" library="Jackson"/> -->
+        <!-- <jacksonxml id="jacksonxml" unmarshalTypeName="fr.mel.integration.EntityXMLClass"/> -->
+        <!-- </dataFormats> -->
+        <route id="webservice-Route">
+            <from id="cxf_endpoint" uri="cxfrs:bean:rsServer?bindingStyle=SimpleConsumer"/>
+            <onException id="_onException1">
+                <exception>java.lang.Throwable</exception>
+                <!-- <handled> -->
+                <!-- <constant>true</constant> -->
+                <!-- </handled> -->
+                <log id="_error" message="[MEL APPLICATION] :: exchange ${id} failed"/>
+            </onException>
+            <log id="_log2" message="[MEL APPLICATION] :: The input message is ${body}"/>
+            <choice id="_choice1">
+                <when id="_when1">
+                    <simple>${body} != ''</simple>
+                    <!-- <camel:unmarshal id="json2pojo"> -->
+                    <!-- <camel:json id="json" library="Jackson" -->
+                    <!-- unmarshalTypeName="fr.mel.integration.EntityClass" /> -->
+                    <!-- </camel:unmarshal> -->
+                    <!-- <to id="jsonreader" uri="bean:jsonreader"/> -->
+                    <camel:unmarshal id="json2xml">
+                        <camel:xmljson rootName="example"/>
+                    </camel:unmarshal>
+                    <log id="_log1" message="${id} :: The output message is ${body}"/>
+                    <camel:unmarshal id="xml2pojo">
+                        <jacksonxml id="jacksonxml" unmarshalTypeName="fr.mel.integration.EntityXMLClass"/>
+                    </camel:unmarshal>
+                    <to id="xmlreader" uri="bean:xmlreader"/>
+                    <setHeader headerName="Content-Type" id="_setHeader1">
+                        <simple>text/plain</simple>
+                    </setHeader>
+                    <convertBodyTo id="_convertBodyTo1" type="java.lang.String"/>
+                    <to id="_to1" uri="mock:restResponse"/>
+                </when>
+            </choice>
+        </route>
+    </camelContext>
+</blueprint>

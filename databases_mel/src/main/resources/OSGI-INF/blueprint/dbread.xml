@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:camel="http://camel.apache.org/schema/blueprint"
+    xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+    xmlns:cxf="http://cxf.apache.org/blueprint/core"
+    xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd              http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd              ">
+
+    <bean class="oracle.jdbc.pool.OracleDataSource" id="oracleDataSource">
+<!--         <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/> -->
+        <property name="URL" value="jdbc:oracle:thin:@//fermi:1521/prim_cudl"/>
+        <property name="user" value="urbadsi"/>
+        <property name="password" value="preprod"/>
+    </bean>
+<!--     <bean class="org.apache.commons.dbcp.BasicDataSource" id="mssqlDataSource"> -->
+<!--         <property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver"/> -->
+<!--         <property name="url" value="jdbc:jtds:sqlserver://lmcu-clusqlp:1433;databaseName=odace8"/> -->
+<!--         <property name="username" value="urbadsi"/> -->
+<!--         <property name="password" value="preprod"/> -->
+<!--     </bean> -->
+    <bean class="net.sourceforge.jtds.jdbcx.JtdsDataSource" id="mssqlDataSource">
+<!--         <property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver"/> -->
+        <property name="serverName" value="lmcu-clusqlp"/>
+        <property name="portNumber" value="1433"/>
+        <property name="databaseName" value="odace8"/>
+        <property name="user" value="odacelec"/>
+        <property name="password" value="AudaceLec59!"/>
+    </bean>
+    <bean class="fr.mel.integration.DBReader" id="dbreader"/>
+    <camelContext id="databases" streamCache="true" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
+        <route id="databases-route">
+<!--             <onException id="_onException1"> -->
+<!--                 <exception>java.lang.Throwable</exception> -->
+<!--                 <handled> -->
+<!--                 <constant>true</constant> -->
+<!--                 </handled> -->
+<!--                 <log id="_error" message="[MEL APPLICATION] :: exchange ${id} failed"/> -->
+<!--             </onException> -->
+            <from id="batch" uri="quartz://mel/databasecron?cron=0/30+*+*+*+*+?"/>
+            <to id="_to1" uri="sql:select * from achat?dataSource=#mssqlDataSource"/>
+             <to id="dbreader2" uri="bean:dbreader"/>
+            <log id="_log2" message="------------------------------------"/>
+            <to id="_to2" uri="sql:select * from proj1?dataSource=#oracleDataSource"/>            
+            <to id="dbreader" uri="bean:dbreader"/>
+            <log id="_log1" message="------------------------------------"/>
+        </route>
+    </camelContext>
+</blueprint>

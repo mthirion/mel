@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:camel="http://camel.apache.org/schema/blueprint"
+    xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+    xmlns:cxf="http://cxf.apache.org/blueprint/core"
+    xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd              http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd              ">
+    <bean class="fr.mel.integration.JSONBean" id="jsonreader"/>
+    <bean class="fr.mel.integration.XMLBean" id="xmlreader"/>
+    <camelContext id="camelContext-6ad8edba-493a-49ca-9b2b-3c0b401b81a3" xmlns="http://camel.apache.org/schema/blueprint">
+        <restConfiguration bindingMode="auto" component="jetty"
+            contextPath="/api" host="0.0.0.0" port="9898"/>
+        <rest path="/service">
+            <post uri="/flow">
+                <to uri="direct:flow"/>
+            </post>
+            <put type="fr.mel.integration.EntityClass" uri="/custom">
+                <to uri="direct:custom"/>
+            </put>
+            <get uri="/{id}">
+                <to uri="direct:details"/>
+            </get>
+        </rest>
+        <route id="_route1">
+            <from id="_from1" uri="direct:flow"/>
+            <transform id="_transform1">
+                <constant>Hello World</constant>
+            </transform>
+        </route>
+        <route id="_route2">
+            <from id="_from2" uri="direct:custom"/>
+            <to id="_to1" uri="bean:xmlreader"/>
+        </route>
+        <route id="_route3">
+            <from id="_from3" uri="direct:details"/>
+            <transform id="_transform2">
+                <simple>Get Details for ${header.id}</simple>
+            </transform>
+        </route>
+    </camelContext>
+</blueprint>

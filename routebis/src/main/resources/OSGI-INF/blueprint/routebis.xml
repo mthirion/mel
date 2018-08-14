@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:camel="http://camel.apache.org/schema/blueprint"
+    xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+    xmlns:cxf="http://cxf.apache.org/blueprint/core"
+    xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd              http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd              ">
+    <!--     <bean class="org.apache.activemq.camel.component.ActiveMQComponent" id="activemq"> -->
+    <!--         <property name="brokerURL" value="tcp://${env:ACTIVEMQ_URL}"/> -->
+    <!--         <property name="userName" value="${env:ACTIVEMQ_USERNAME}"/> -->
+    <!--         <property name="password" value="${env:ACTIVEMQ_PASSWORD}"/> -->
+    <!--     </bean> -->
+    <camelContext id="logmsgbis" streamCache="true" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
+        <route id="routebis">
+            <from id="_from1" uri="amq:melBufferQueue"/>
+            <log id="data-line2" message="------------ EMBEDDED ROUTE --------- ---"/>
+            <log id="data-context-meta2" message="[MEL APPLICATION] :: Context name "/>
+            <log id="data-context2" message="${camelId}"/>
+            <log id="data-route-meta2" message="[MEL APPLICATION] :: Route name "/>
+            <log id="data-route2" message="${routeId}"/>
+            <log id="data-exchangeId-meta2" message="[MEL APPLICATION] :: ExchangeId "/>
+            <log id="data-exchangeId2" message="${exchangeId}"/>
+            <log id="data-messageId-meta2" message="[MEL APPLICATION] :: MessageId "/>
+            <log id="data-messageId2" message="${id}"/>
+        </route>
+    </camelContext>
+</blueprint>
