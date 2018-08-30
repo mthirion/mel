@@ -2,14 +2,14 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
     xmlns:camel="http://camel.apache.org/schema/blueprint"
     xmlns:camelcxf="http://camel.apache.org/schema/blueprint/cxf"
-    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
     xmlns:cxf="http://cxf.apache.org/blueprint/core"
     xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd              http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd              ">
     <cm:property-placeholder id="mel-example" persistent-id="org.jboss.integration.examples.service">
         <cm:default-properties>
             <!-- Service URL -->
-            <cm:property name="api.root.url" value="/api2"/>
+            <cm:property name="api.root.url" value="http://0.0.0.0:9898/api"/>
             <cm:property name="app.key" value="oihsdfpoisdfps"/>
         </cm:default-properties>
     </cm:property-placeholder>
@@ -61,6 +61,10 @@
                     <convertBodyTo id="_convertBodyTo1" type="java.lang.String"/>
                     <to id="_to1" uri="mock:restResponse"/>
                 </when>
+                <otherwise>
+                	<log id="_log2" message="${id} :: Le contenu du service web est vide"/>
+                	<to id="_to2" uri="mock:restResponse"/>
+                </otherwise>
             </choice>
         </route>
     </camelContext>

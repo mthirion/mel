@@ -16,6 +16,8 @@ public class EventManager extends org.apache.camel.support.EventNotifierSupport 
 
 	Logger logger = Logger.getLogger(this.getClass().getName());
 	
+	private Boolean errorDetected=false;
+	
 	@Override
 	public boolean isEnabled(EventObject event) {
 		// TODO Auto-generated method stub
@@ -34,6 +36,7 @@ public class EventManager extends org.apache.camel.support.EventNotifierSupport 
 		if (event instanceof ExchangeFailedEvent) {
 			ExchangeFailedEvent failedEvent = (ExchangeFailedEvent)event;
 			exchange = failedEvent.getExchange();
+			errorDetected=true;
 		}
 				
 		String id = exchange.getExchangeId();
@@ -44,11 +47,15 @@ public class EventManager extends org.apache.camel.support.EventNotifierSupport 
 		m.setHeader("exec_milliseconds", String.valueOf(respTime));
 		m.setHeader("identifier", exchange.getExchangeId());
 		exchange.setOut(m);
+	
+		logger.log(Level.WARNING,"[MEL EVENT MANAGER ] :: route = " + exchange.getContext().getRoutes().get(0).getId());		
 		
-		if (exchange.isFailed())
+		if (errorDetected==true && exchange.getContext().getRoutes().get(0).getId() == "event-route")
 		{
 			logger.log(Level.WARNING,"[MEL EVENT MANAGER] :: Exchange [" + id + "] has failed");
 		
+			
+			logger.log(Level.WARNING,"[MEL EVENT MANAGER] :: send an email for " + exchange.getContext().getRoutes().get(0).getId());
 			//sendMail(exchange);
 			
 		}

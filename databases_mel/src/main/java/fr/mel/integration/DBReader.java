@@ -23,18 +23,25 @@ public class DBReader implements Processor {
 
 		Integer CamelSqlRowCount=(Integer)message.getHeader("CamelSqlRowCount");
 		logger.log(Level.INFO, "[MEL APPLICATION -JAVA-] :: found " + CamelSqlRowCount.intValue() + " records");
-		
+
+		logger.log(Level.INFO, "--------------------------------------------------");
+		String header="|";
 		int i=1;
+		String column;
 		for (Map<String, Object> record : data) {
-			logger.log(Level.INFO, "[MEL APPLICATION -JAVA-] :: database row" +i);
 			Iterator<Entry<String,Object>> it = record.entrySet().iterator();
 			Entry<String, Object> entry=null;
+			column="";
 			while (it.hasNext()) {
 				entry = it.next();
-				logger.log(Level.INFO, entry.getKey() + " || " + entry.getValue());
+				if (i==1) header=header+ entry.getKey().toUpperCase() + " | "; // print the column name only the first time
+				column=column+entry.getValue() + " | ";
 			}
+			if (i==1) logger.log(Level.INFO, header);
+			logger.log(Level.INFO, column);
 			i++;
 		}
+		
 	}
 
 }
