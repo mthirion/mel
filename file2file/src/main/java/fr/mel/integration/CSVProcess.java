@@ -31,9 +31,9 @@ public class CSVProcess implements Processor {
 		rowTwo.put("name", "SARAN");
 		rowTwo.put("sign", "Leo");
 		Map<String, Object> rowThree = new HashMap<String, Object>();
-		rowTwo.put("goodName", "FRANK");
-		rowTwo.put("name", "LURON");
-		rowTwo.put("sign", "Scorpio");
+		rowThree.put("goodName", "FRANK");
+		rowThree.put("name", "LURON");
+		rowThree.put("sign", "Scorpio");
 		
 		newdata.add(rowOne);
 		newdata.add(rowTwo);
