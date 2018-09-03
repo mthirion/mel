@@ -25,14 +25,19 @@ public class CSVProcess implements Processor {
 		Map<String, Object> rowOne = new HashMap<String, Object>();
 		rowOne.put("goodName", "MICHAEL");
 		rowOne.put("name", "THIRION");
-		rowOne.put("Planet", "EARTH");
+		rowOne.put("sign", "Pisces");
 		Map<String, Object> rowTwo = new HashMap<String, Object>();
 		rowTwo.put("goodName", "JEREMY");
 		rowTwo.put("name", "SARAN");
-		rowTwo.put("Planet", "MARS");
+		rowTwo.put("sign", "Leo");
+		Map<String, Object> rowThree = new HashMap<String, Object>();
+		rowTwo.put("goodName", "FRANK");
+		rowTwo.put("name", "LURON");
+		rowTwo.put("sign", "Scorpio");
 		
 		newdata.add(rowOne);
 		newdata.add(rowTwo);
+		newdata.add(rowThree);
 		
 		message.setBody(newdata);
 		exchange.setIn(message);
